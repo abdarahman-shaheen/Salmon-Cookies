@@ -11,7 +11,5 @@ namespace Salmon_Cookies.Interface
         Task<CookieStand> Create(CreateStand stand);
         Task<CookieStand> Put(int id, CreateStand updateStand);
         Task<CookieStand> Delete(int id);
-
-        
     }
 }
