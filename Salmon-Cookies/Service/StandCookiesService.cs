@@ -25,11 +25,19 @@ namespace Salmon_Cookies.Service
                 MinimumCustomersPerHour = stand.MinimumCustomersPerHour,
                 Owner = stand.Owner,
             };
-            stanCookies.Hours = await GenerateHourlySales(stanCookies);
 
-        await _dbContext.CookieStands.AddAsync(stanCookies);
-            //_dbContext.Entry(stand).State = EntityState.Added;
+            // Add the CookieStand to the context
+            await _dbContext.CookieStands.AddAsync(stanCookies);
+
+            // Save changes to the database to generate the Id
             await _dbContext.SaveChangesAsync();
+
+            // Generate and set the hourly sales
+           await GenerateHourlySales(stanCookies);
+
+            // Save changes again to update the Hours with proper CookieStandid
+            await _dbContext.SaveChangesAsync();
+
             return stanCookies;
         }
         private async Task<List<HourSales>> GenerateHourlySales(CookieStand stand)
@@ -45,7 +53,7 @@ namespace Salmon_Cookies.Service
             for (int hour = 0; hour < 12; hour++)
             {
                 int Hour = GenerateRandomHour(stand.MinimumCustomersPerHour * stand.AverageCookiesPerSale, stand.MaximumCustomersPerHour * stand.AverageCookiesPerSale);
-                stand.Hours.Add(new HourSales { Hour = Hour, CookieStandid = stand.Id });
+                _dbContext.HourSales.Add(new HourSales { Hour = Hour, CookieStandid = stand.Id });
             }
 
             return stand.Hours;
